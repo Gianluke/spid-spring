@@ -17,7 +17,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
-import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.model.ResponseDecoded;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.spidspringrest.model.ExtraInfo;
@@ -34,7 +33,7 @@ public class SpidSpringRestController {
 	public SpidProviders listIdProviders() throws IntegrationServiceException {
 		SpidProviders retVal = new SpidProviders();
 		retVal.setIdentityProviders(spidIntegrationService.getAllIdpEntry());
-		retVal.setExtraInfo(EXTRA_MOCK);
+		retVal.setExtraInfo(EXTRA_INFO);
 		return retVal;
 	}
 
@@ -42,7 +41,7 @@ public class SpidSpringRestController {
 	@RequestMapping(value = "auth-spid", method = RequestMethod.GET)
 	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId) {
 		AuthRequest retVal = new AuthRequest();
-		retVal.setDestinationUrl("https://posteid.poste.it/jod-fs/ssoservicepost");
+		retVal.setDestinationUrl("https://posteid.poste.it/jod-securelogin-schema/login.jsp");
 		retVal.setXmlAuthRequest("<TEST>" + entityId + "</TEST>");
 
 		return retVal;
@@ -70,10 +69,10 @@ public class SpidSpringRestController {
 		return retVal;
 	}
 
-	private static final List<ExtraInfo> EXTRA_MOCK = new ArrayList<ExtraInfo>();
+	private static final List<ExtraInfo> EXTRA_INFO = new ArrayList<ExtraInfo>();
 	static {
-		EXTRA_MOCK.add(new ExtraInfo("Maggiori informazioni", "https://www.spid.gov.it/"));
-		EXTRA_MOCK.add(new ExtraInfo("Non hai SPID?", "https://www.spid.gov.it/richiedi-spid"));
-		EXTRA_MOCK.add(new ExtraInfo("Serve aiuto?", "https://www.spid.gov.it/serve-aiuto"));
+		EXTRA_INFO.add(new ExtraInfo("Maggiori informazioni", "https://www.spid.gov.it/"));
+		EXTRA_INFO.add(new ExtraInfo("Non hai SPID?", "https://www.spid.gov.it/richiedi-spid"));
+		EXTRA_INFO.add(new ExtraInfo("Serve aiuto?", "https://www.spid.gov.it/serve-aiuto"));
 	}
 }
