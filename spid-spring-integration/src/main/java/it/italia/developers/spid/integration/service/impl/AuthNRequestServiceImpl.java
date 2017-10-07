@@ -30,9 +30,9 @@ import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
  *
  */
 @Service
-public class AuthNRequestServiceImple implements AuthNRequestService {
+public class AuthNRequestServiceImpl implements AuthNRequestService {
 
-	private final Logger log = LoggerFactory.getLogger(AuthNRequestServiceImple.class.getName());
+	private final Logger log = LoggerFactory.getLogger(AuthNRequestServiceImpl.class.getName());
 
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
 	private static final String SAML2_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
