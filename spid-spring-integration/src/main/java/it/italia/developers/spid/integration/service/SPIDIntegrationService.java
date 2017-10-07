@@ -1,7 +1,6 @@
 package it.italia.developers.spid.integration.service;
 
 import java.util.List;
-import java.util.Set;
 
 import org.opensaml.saml2.core.AuthnRequest;
 

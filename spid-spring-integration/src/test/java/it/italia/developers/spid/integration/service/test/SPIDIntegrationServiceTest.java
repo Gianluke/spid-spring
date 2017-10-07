@@ -1,5 +1,6 @@
 package it.italia.developers.spid.integration.service.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -14,7 +15,6 @@ import it.italia.developers.spid.integration.exception.IntegrationServiceExcepti
 import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
-import junit.framework.Assert;
 
 import java.util.List;
 
