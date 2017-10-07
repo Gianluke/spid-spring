@@ -44,6 +44,13 @@
 			<artifactId>spring-integration-http</artifactId>
 		</dependency>
 		
+		<!-- Integration Core -->
+		<dependency>
+			<groupId>it.italia.developers.spid</groupId>
+			<artifactId>spid-spring-integration</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
