@@ -4,24 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import it.italia.developers.spid.integration.Application;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import junit.framework.Assert;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { Application.class })
+// @RunWith(SpringJUnit4ClassRunner.class)
+// @ContextConfiguration(classes = { Application.class })
 public class SPIDIntegrationUtilTest {
 
 	@Autowired
 	private SPIDIntegrationUtil spidIntegrationUtil;
 
-	@Test
+	// @Test
 	public void xmlStringToXMLObjectTest() {
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
