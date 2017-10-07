@@ -2,6 +2,8 @@ package it.italia.developers.spid.spidspringrest.model;
 
 import java.util.List;
 
+import it.italia.developers.spid.integration.model.IdpEntry;
+
 public class SpidProviders {
 
 	private List<IdpEntry> identityProviders;

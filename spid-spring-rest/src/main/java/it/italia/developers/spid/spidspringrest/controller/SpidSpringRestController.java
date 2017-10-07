@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import it.italia.developers.spid.spidspringrest.model.AuthRequest;
+import it.italia.developers.spid.integration.model.AuthRequest;
+import it.italia.developers.spid.integration.model.IdpEntry;
+import it.italia.developers.spid.integration.model.ResponseDecoded;
 import it.italia.developers.spid.spidspringrest.model.ExtraInfo;
-import it.italia.developers.spid.spidspringrest.model.IdpEntry;
-import it.italia.developers.spid.spidspringrest.model.ResponseDecoded;
 import it.italia.developers.spid.spidspringrest.model.SpidProviders;
 
 @RestController()
@@ -56,7 +56,7 @@ public class SpidSpringRestController {
 	}
 
 
-	private static final List<IdpEntry> ENTRY_MOCK = new ArrayList<IdpEntry>();
+	private static final List<it.italia.developers.spid.integration.model.IdpEntry> ENTRY_MOCK = new ArrayList<IdpEntry>();
 	static {
 		ENTRY_MOCK.add(new IdpEntry("posteid", "https://posteid.poste.it", "Poste ID"));
 		ENTRY_MOCK.add(new IdpEntry("timid", "https://login.id.tim.it/affwebservices/public/saml2sso", "TIM ID"));
