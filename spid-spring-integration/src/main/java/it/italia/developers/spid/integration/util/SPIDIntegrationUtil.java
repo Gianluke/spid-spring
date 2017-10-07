@@ -1,5 +1,6 @@
 package it.italia.developers.spid.integration.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,13 +16,18 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.ConfigurationException;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.Base64;
@@ -30,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * @author Gianluca Pindinelli
@@ -96,6 +103,24 @@ public class SPIDIntegrationUtil {
 
 		return authnRequestString;
 
+	}
+
+	public XMLObject xmlStringToXMLObject(String xmlData) throws SAXException, IOException, ParserConfigurationException, UnmarshallingException {
+		Element domElement = xmlStringToElement(xmlData);
+		Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(domElement);
+		XMLObject xmlObject = unmarshaller.unmarshall(domElement);
+
+		return xmlObject;
+	}
+
+	private Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
+		Element node =  DocumentBuilderFactory
+		    .newInstance()
+		    .newDocumentBuilder()
+		    .parse(new ByteArrayInputStream(xmlData.getBytes()))
+		    .getDocumentElement();
+		
+		return node;
 	}
 
 	public Credential getCredential() {
