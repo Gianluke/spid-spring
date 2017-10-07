@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -146,17 +147,29 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 
 	@Override
 	public List<IdpEntry> getAllIdpEntry() throws IntegrationServiceException {
+		List<IdpEntry> idpEntries = new ArrayList<IdpEntry>();
 		Properties properties = new Properties();
 		ClassLoader classLoader = getClass().getClassLoader();
 		File propertyFile = new File(classLoader.getResource("idplist.properties").getFile());
 		try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {
-			
+			String keysProperty = properties.getProperty("spid.spring.integration.idp.keys");
+			String[] keys = keysProperty.split(",");
+			for (String key: keys) {
+				IdpEntry idpEntry = new IdpEntry();
+				String name = properties.getProperty("spid.spring.integration.idp." + key + ".name");
+				idpEntry.setName(name);
+				String imageUrl = properties.getProperty("spid.spring.integration.idp." + key + ".imageUrl");
+				idpEntry.setImageUrl(imageUrl);
+				String entityId = properties.getProperty("spid.spring.integration.idp." + key + ".entityId");
+				idpEntry.setEntityId(entityId);
+				idpEntries.add(idpEntry);								
+			}
 		} catch (FileNotFoundException e) {
 			throw new IntegrationServiceException(e);
 		} catch (IOException e) {
 			throw new IntegrationServiceException(e);
 		}
-		return null;
+		return idpEntries;
 	}
 
 	@Override
