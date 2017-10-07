@@ -18,6 +18,7 @@ import java.util.zip.DeflaterOutputStream;
 
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.xml.Configuration;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
@@ -28,6 +29,7 @@ import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Element;
 
 /**
  * @author Gianluca Pindinelli
@@ -85,8 +87,8 @@ public class SPIDIntegrationUtil {
 	 */
 	public String printAuthnRequest(AuthnRequest authnRequest) throws MarshallingException {
 
-		Marshaller marshaller = org.opensaml.Configuration.getMarshallerFactory().getMarshaller(authnRequest); // object to DOM converter
-		org.w3c.dom.Element authDOM = marshaller.marshall(authnRequest); // converting to a DOM
+		Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(authnRequest); // object to DOM converter
+		Element authDOM = marshaller.marshall(authnRequest); // converting to a DOM
 		StringWriter requestWriter = new StringWriter();
 		requestWriter = new StringWriter();
 		XMLHelper.writeNode(authDOM, requestWriter);
