@@ -159,11 +159,11 @@ public class AuthNRequestServiceImpl implements AuthNRequestService {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * it.italia.developers.spid.integration.service.AuthNRequestService#getAuthNResponse(java.lang.
-	 * String)
+	 * it.italia.developers.spid.integration.service.AuthNRequestService#processAuthenticationResponse(
+	 * java.lang.String)
 	 */
 	@Override
-	public ResponseDecoded getAuthNResponse(String authResponse) throws IntegrationServiceException {
+	public ResponseDecoded processAuthenticationResponse(String authResponse) throws IntegrationServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
