@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.security.KeyStore;
@@ -17,7 +16,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.opensaml.DefaultBootstrap;
@@ -37,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -119,7 +116,7 @@ public class SPIDIntegrationUtil {
 		Element node =  DocumentBuilderFactory
 		    .newInstance()
 		    .newDocumentBuilder()
-		    .parse(new InputSource(new StringReader(xmlData)))
+		    .parse(new ByteArrayInputStream(xmlData.getBytes()))
 		    .getDocumentElement();
 		
 		return node;
