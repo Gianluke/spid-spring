@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.security.KeyStore;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -117,7 +119,7 @@ public class SPIDIntegrationUtil {
 		Element node =  DocumentBuilderFactory
 		    .newInstance()
 		    .newDocumentBuilder()
-		    .parse(new ByteArrayInputStream(xmlData.getBytes()))
+		    .parse(new InputSource(new StringReader(xmlData)))
 		    .getDocumentElement();
 		
 		return node;
