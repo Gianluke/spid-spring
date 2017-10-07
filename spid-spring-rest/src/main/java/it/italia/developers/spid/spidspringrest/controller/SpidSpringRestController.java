@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.model.ResponseDecoded;
-import it.italia.developers.spid.integration.service.AuthNRequestService;
+import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.spidspringrest.model.ExtraInfo;
 import it.italia.developers.spid.spidspringrest.model.SpidProviders;
 
@@ -26,13 +27,13 @@ import it.italia.developers.spid.spidspringrest.model.SpidProviders;
 public class SpidSpringRestController {
 
 	@Autowired
-	private AuthNRequestService authNRequestService;
+	private SPIDIntegrationService spidIntegrationService;
 
 	@ApiOperation(value = "Elenco Providers SPID", notes = "Servizio rest per ottenere l'elenco dei provider abilitati", response = SpidProviders.class)
 	@RequestMapping(value = "list-providers", method = RequestMethod.GET)
-	public SpidProviders listIdProviders() {
+	public SpidProviders listIdProviders() throws IntegrationServiceException {
 		SpidProviders retVal = new SpidProviders();
-		retVal.setIdentityProviders(ENTRY_MOCK);
+		retVal.setIdentityProviders(spidIntegrationService.getAllIdpEntry());
 		retVal.setExtraInfo(EXTRA_MOCK);
 		return retVal;
 	}
@@ -67,17 +68,6 @@ public class SpidSpringRestController {
 		retVal.setCognome("TEST");
 
 		return retVal;
-	}
-
-	private static final List<it.italia.developers.spid.integration.model.IdpEntry> ENTRY_MOCK = new ArrayList<IdpEntry>();
-	static {
-		ENTRY_MOCK.add(new IdpEntry("posteid", "https://posteid.poste.it", "Poste ID"));
-		ENTRY_MOCK.add(new IdpEntry("timid", "https://login.id.tim.it/affwebservices/public/saml2sso", "TIM ID"));
-		ENTRY_MOCK.add(new IdpEntry("namirialid", "https://idp.namirialtsp.com/idp", "Namirial ID"));
-		ENTRY_MOCK.add(new IdpEntry("infocertid", "https://identity.infocert.it", "InfoCert ID"));
-		ENTRY_MOCK.add(new IdpEntry("sielteid", "https://identity.sieltecloud.it", "Sielte ID"));
-		ENTRY_MOCK.add(new IdpEntry("spiditalia", "https://spid.register.it", "SpidItalia"));
-		ENTRY_MOCK.add(new IdpEntry("arubaid", "https://loginspid.aruba.it", "SpidItalia ID"));
 	}
 
 	private static final List<ExtraInfo> EXTRA_MOCK = new ArrayList<ExtraInfo>();
