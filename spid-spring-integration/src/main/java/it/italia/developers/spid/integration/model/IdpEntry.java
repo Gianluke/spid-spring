@@ -5,14 +5,16 @@ public class IdpEntry {
 	private String identifier;
 	private String entityId;
 	private String name;
+	private String imageUrl;
 
 	public IdpEntry() {
 	}
 
-	public IdpEntry(final String identifier, final String entityId, final String name) {
+	public IdpEntry(final String identifier, final String entityId, final String name, String imageUrl) {
 		this.identifier = identifier;
 		this.entityId = entityId;
 		this.name = name;
+		this.imageUrl = imageUrl;
 	}
 
 	public String getIdentifier() {
@@ -35,7 +37,15 @@ public class IdpEntry {
 		return name;
 	}
 
-	public void setName(final String name) {
+	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }
