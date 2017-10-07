@@ -1,9 +1,5 @@
 package it.italia.developers.spid.integration.service.impl;
 
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -21,10 +17,6 @@ import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
 import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.XMLObjectBuilderFactory;
-import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.SignatureConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,30 +71,32 @@ public class AuthNRequestServiceImple implements AuthNRequestService {
 
 		XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
-		Signature signature = (Signature) builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
-		signature.setSigningCredential(spidIntegrationUtil.getCredential());
-		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
-		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-		KeyInfo keyInfo = (KeyInfo) builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-
-		KeyStore ks = spidIntegrationUtil.getKeyStore();
-		try {
-			X509Certificate certificate = (X509Certificate) ks.getCertificate("my_saml_signing_key");
-			KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
-			KeyInfoHelper.addCertificate(keyInfo, certificate);
-		}
-		catch (CertificateEncodingException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
-		catch (KeyStoreException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
-		catch (IllegalArgumentException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
-
-		signature.setKeyInfo(keyInfo);
-		authRequest.setSignature(signature);
+		// Signature signature = (Signature)
+		// builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
+		// signature.setSigningCredential(spidIntegrationUtil.getCredential());
+		// signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		// signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		// KeyInfo keyInfo = (KeyInfo)
+		// builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+		//
+		// KeyStore ks = spidIntegrationUtil.getKeyStore();
+		// try {
+		// X509Certificate certificate = (X509Certificate) ks.getCertificate("my_saml_signing_key");
+		// KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+		// KeyInfoHelper.addCertificate(keyInfo, certificate);
+		// }
+		// catch (CertificateEncodingException e) {
+		// log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		// }
+		// catch (KeyStoreException e) {
+		// log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		// }
+		// catch (IllegalArgumentException e) {
+		// log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		// }
+		//
+		// signature.setKeyInfo(keyInfo);
+		// authRequest.setSignature(signature);
 
 		return authRequest;
 	}
