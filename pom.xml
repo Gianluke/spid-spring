@@ -1,0 +1,13 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>it.italia.developers.spid</groupId>
+  <artifactId>spid-spring</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>SPID - Spring Integration</name>
+  <description>SPID - Spring Integration per hack.developers17</description>
+  <modules>
+  	<module>spid-spring-integration</module>
+  	<module>spid-spring-rest</module>
+  </modules>
+</project>
