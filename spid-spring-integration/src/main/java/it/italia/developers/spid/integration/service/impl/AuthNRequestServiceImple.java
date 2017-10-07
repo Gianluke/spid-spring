@@ -1,5 +1,6 @@
 package it.italia.developers.spid.integration.service.impl;
 
+import java.security.KeyStore;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -15,9 +16,17 @@ import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
 import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
+import org.opensaml.xml.Configuration;
+import org.opensaml.xml.XMLObjectBuilderFactory;
+import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.italia.developers.spid.integration.service.AuthNRequestService;
+import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
 
 /**
  * @author Gianluca Pindinelli
@@ -32,9 +41,12 @@ public class AuthNRequestServiceImple implements AuthNRequestService {
 	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
 	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
 
+	@Autowired
+	private SPIDIntegrationUtil spidIntegrationUtil;
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * it.italia.developers.spid.integration.service.AuthNRequestService#buildAuthenticationRequest(java
 	 * .lang.String, java.lang.String, java.lang.String)
@@ -57,8 +69,22 @@ public class AuthNRequestServiceImple implements AuthNRequestService {
 
 		authRequest.setAttributeConsumingServiceIndex(1);
 		authRequest.setDestination(destination);
-		// TODO
-		// authRequest.setSignature(newSignature);
+
+		XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+
+		Signature signature = (Signature) builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
+		signature.setSigningCredential(spidIntegrationUtil.getCredential());
+		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		KeyInfo keyInfo = (KeyInfo) builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+
+		KeyStore ks = spidIntegrationUtil.getKeyStore();
+		X509Certificate certificate = (X509Certificate) ks.getCertificate("my_saml_signing_key");
+		KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+		KeyInfoHelper.addCertificate(keyInfo, certificate);
+
+		signature.setKeyInfo(keyInfo);
+		authRequest.setSignature(signature);
 
 		return authRequest;
 	}
