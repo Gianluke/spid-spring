@@ -35,8 +35,8 @@ public class SpidSpringRestController {
 	public AuthRequest authRequest(
 			@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId) {
 		AuthRequest retVal = new AuthRequest();
-		retVal.setDestinationUrl(entityId);
-		retVal.setXmlAuthRequest("<TEST />");
+		retVal.setDestinationUrl("https://posteid.poste.it/jod-fs/ssoservicepost");
+		retVal.setXmlAuthRequest("<TEST>" + entityId + "</TEST>");
 
 		return retVal;
 	}
