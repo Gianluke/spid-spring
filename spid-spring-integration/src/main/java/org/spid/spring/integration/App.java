@@ -1,7 +1,7 @@
 package org.spid.spring.integration;
 
 /**
- * Hello world!
+ * TODO
  *
  */
 public class App 
