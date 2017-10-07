@@ -42,12 +42,12 @@ public interface AuthNRequestService {
 	Set<IdpEntry> getAllIdpEntry() throws IntegrationServiceException;
 
 	/**
-	 * Ritorna la risposta decodificata a partire dall'auth response SAML2.
-	 * 
+	 * Costruisce la risposta decodificata a partire dall'auth response SAML2.
+	 *
 	 * @param authResponse
 	 * @return
 	 * @throws IntegrationServiceException
 	 */
-	ResponseDecoded getAuthNResponse(String authResponse) throws IntegrationServiceException;
+	ResponseDecoded processAuthenticationResponse(String authResponse) throws IntegrationServiceException;
 
 }
