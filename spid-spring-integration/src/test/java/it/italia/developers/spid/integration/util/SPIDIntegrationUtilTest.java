@@ -24,10 +24,10 @@ public class SPIDIntegrationUtilTest {
       @Test
       public void xmlStringToXMLObjectTest() {
 
-            try {
-                  ClassLoader classLoader = getClass().getClassLoader();
-                  File xmlFile = new File(classLoader.getResource("metadata/idp/telecom-metadata.xml").getFile());
-                  String xmlData = new Scanner(xmlFile).useDelimiter("\\Z").next();
+            ClassLoader classLoader = getClass().getClassLoader();
+            File xmlFile = new File(classLoader.getResource("metadata/idp/telecom-metadata.xml").getFile());
+            try (Scanner scanner = new Scanner(xmlFile)) {
+                  String xmlData = scanner.useDelimiter("\\Z").next();
                   Element node = spidIntegrationUtil.xmlStringToElement(xmlData);
 
                   Assert.assertEquals("md:EntityDescriptor", node.getNodeName());

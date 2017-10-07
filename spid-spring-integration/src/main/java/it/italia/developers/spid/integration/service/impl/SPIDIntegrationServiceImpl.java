@@ -40,12 +40,6 @@ import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
 @Service
 public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 	
-	/**
-	 *
-	 */
-	
-	private final Logger log = LoggerFactory.getLogger(SPIDIntegrationUtil.class.getName());
-	
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
 	private static final String SAML2_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 	private static final String SAML2_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
