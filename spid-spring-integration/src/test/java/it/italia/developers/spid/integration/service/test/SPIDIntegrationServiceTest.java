@@ -11,8 +11,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import it.italia.developers.spid.integration.Application;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
+import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
+import junit.framework.Assert;
+
+import java.util.List;
 
 /**
  * @author Gianluca Pindinelli
@@ -48,6 +52,18 @@ public class SPIDIntegrationServiceTest {
 		}
 		catch (IntegrationServiceException e) {
 			log.error("generateAuthNRequest :: " + e.getMessage(), e);
+		}
+
+	}
+
+	@Test
+	public void getAllIdpEntryTest() {
+		try {
+			List<IdpEntry> idpEntries =  spidIntegrationService.getAllIdpEntry();
+			Assert.assertTrue(idpEntries.size() > 0);
+		} catch (IntegrationServiceException e) {
+			e.printStackTrace();
+			Assert.fail();
 		}
 
 	}

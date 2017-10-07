@@ -1,9 +1,8 @@
 package it.italia.developers.spid.integration.service.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -40,19 +39,22 @@ import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
  */
 @Service
 public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
-
+	
 	/**
 	 *
 	 */
-
+	
 	private final Logger log = LoggerFactory.getLogger(SPIDIntegrationUtil.class.getName());
-
+	
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
 	private static final String SAML2_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 	private static final String SAML2_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
 	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
+	private static final String SPID_SPRING_INTEGRATION_IDP_PREFIX = "spid.spring.integration.idp.";
+	private static final String SPID_SPRING_INTEGRATION_IDP_KEYS = "spid.spring.integration.idp.keys";
 
+	
 	@Value("${spid.spring.integration.sp.assertionConsumerServiceUrl}")
 	private String assertionConsumerServiceUrl;
 
@@ -148,28 +150,37 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 	@Override
 	public List<IdpEntry> getAllIdpEntry() throws IntegrationServiceException {
 		List<IdpEntry> idpEntries = new ArrayList<IdpEntry>();
+
 		Properties properties = new Properties();
-		ClassLoader classLoader = getClass().getClassLoader();
-		File propertyFile = new File(classLoader.getResource("idplist.properties").getFile());
-		try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {
-			String keysProperty = properties.getProperty("spid.spring.integration.idp.keys");
-			String[] keys = keysProperty.split(",");
-			for (String key: keys) {
-				IdpEntry idpEntry = new IdpEntry();
-				String name = properties.getProperty("spid.spring.integration.idp." + key + ".name");
-				idpEntry.setName(name);
-				String imageUrl = properties.getProperty("spid.spring.integration.idp." + key + ".imageUrl");
-				idpEntry.setImageUrl(imageUrl);
-				String entityId = properties.getProperty("spid.spring.integration.idp." + key + ".entityId");
-				idpEntry.setEntityId(entityId);
-				idpEntries.add(idpEntry);								
-			}
+		try (InputStream propertiesInputStream = getClass().getResourceAsStream("/idplist.properties")) {
+			properties.load(propertiesInputStream);
+			idpEntries = propertiesToIdPEntry(properties);
 		} catch (FileNotFoundException e) {
 			throw new IntegrationServiceException(e);
 		}
 		catch (IOException e) {
 			throw new IntegrationServiceException(e);
 		}
+		return idpEntries;
+	}
+
+	private List<IdpEntry> propertiesToIdPEntry(Properties properties) {
+		List<IdpEntry> idpEntries = new ArrayList<IdpEntry>();
+
+		String keysProperty = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_KEYS);
+		String[] keys = keysProperty.split(",");
+		for (String key: keys) {
+			IdpEntry idpEntry = new IdpEntry();
+			String name = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".name");
+			idpEntry.setName(name);
+			String imageUrl = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".imageUrl");
+			idpEntry.setImageUrl(imageUrl);
+			String entityId = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".entityId");
+			idpEntry.setEntityId(entityId);
+			idpEntry.setIdentifier(key);
+			idpEntries.add(idpEntry);								
+		}
+
 		return idpEntries;
 	}
 
