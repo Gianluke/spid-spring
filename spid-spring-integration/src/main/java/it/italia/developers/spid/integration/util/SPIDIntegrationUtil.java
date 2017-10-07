@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -18,6 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -25,12 +27,9 @@ import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.ConfigurationException;
-import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
 import org.opensaml.xml.security.x509.BasicX509Credential;
@@ -45,6 +44,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+
+import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 
 /**
  * @author Gianluca Pindinelli
@@ -82,21 +83,32 @@ public class SPIDIntegrationUtil {
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */
-	public String encodeAndPrintAuthnRequest(AuthnRequest authnRequest) throws MarshallingException, IOException, ConfigurationException {
+	public String encodeAndPrintAuthnRequest(AuthnRequest authnRequest) throws IntegrationServiceException {
 
 		String requestMessage = printAuthnRequest(authnRequest);
 		Deflater deflater = new Deflater(Deflater.DEFLATED, true);
 		ByteArrayOutputStream byteArrayOutputStream = null;
 		DeflaterOutputStream deflaterOutputStream = null;
 
-		byteArrayOutputStream = new ByteArrayOutputStream();
-		deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
-		deflaterOutputStream.write(requestMessage.getBytes()); // compressing
-		deflaterOutputStream.close();
+		String encodedRequestMessage;
+		try {
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
+			deflaterOutputStream.write(requestMessage.getBytes()); // compressing
+			deflaterOutputStream.close();
 
-		String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+			encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
 
-		encodedRequestMessage = URLEncoder.encode(encodedRequestMessage, "UTF-8").trim(); // encoding string
+			encodedRequestMessage = URLEncoder.encode(encodedRequestMessage, "UTF-8").trim(); // encoding string
+		}
+		catch (UnsupportedEncodingException e) {
+			log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
+			throw new IntegrationServiceException(e);
+		}
+		catch (IOException e) {
+			log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
+			throw new IntegrationServiceException(e);
+		}
 
 		return encodedRequestMessage;
 
@@ -109,10 +121,18 @@ public class SPIDIntegrationUtil {
 	 * @return
 	 * @throws MarshallingException
 	 */
-	public String printAuthnRequest(AuthnRequest authnRequest) throws MarshallingException {
+	public String printAuthnRequest(AuthnRequest authnRequest) throws IntegrationServiceException {
 
 		Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(authnRequest); // object to DOM converter
-		Element authDOM = marshaller.marshall(authnRequest); // converting to a DOM
+		Element authDOM;
+		try {
+			authDOM = marshaller.marshall(authnRequest);
+		}
+		catch (MarshallingException e) {
+			log.error("printAuthnRequest :: " + e.getMessage(), e);
+			throw new IntegrationServiceException(e);
+		}
+		// converting to a DOM
 		StringWriter requestWriter = new StringWriter();
 		requestWriter = new StringWriter();
 		XMLHelper.writeNode(authDOM, requestWriter);
