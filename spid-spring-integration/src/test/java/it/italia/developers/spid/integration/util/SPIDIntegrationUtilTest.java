@@ -30,9 +30,9 @@ public class SPIDIntegrationUtilTest {
             ClassLoader classLoader = getClass().getClassLoader();
             File xmlFile = new File(classLoader.getResource("telecom-metadata.xml").getFile());
             String xmlData = new Scanner(xmlFile).useDelimiter("\\Z").next();            
-            spidIntegrationUtil.xmlStringToXMLObject(xmlData);
+            spidIntegrationUtil.xmlStringToElement(xmlData);
             
-		} catch (SAXException | IOException | ParserConfigurationException | UnmarshallingException e) {
+		} catch (SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
             Assert.fail();
 		}

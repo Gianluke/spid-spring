@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.security.KeyStore;
@@ -121,16 +122,9 @@ public class SPIDIntegrationUtil {
 
 	}
 
-	public XMLObject xmlStringToXMLObject(String xmlData) throws SAXException, IOException, ParserConfigurationException, UnmarshallingException {
-		Element domElement = xmlStringToElement(xmlData);
-		Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(domElement);
-		XMLObject xmlObject = unmarshaller.unmarshall(domElement);
-
-		return xmlObject;
-	}
-
-	private Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
-		Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlData.getBytes())).getDocumentElement();
+	public Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
+		InputStream xmlByteArrayInputStream = new ByteArrayInputStream(xmlData.getBytes());
+		Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlByteArrayInputStream).getDocumentElement();
 
 		return node;
 	}
