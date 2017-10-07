@@ -12,6 +12,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.zip.Deflater;
@@ -25,12 +26,17 @@ import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
 import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
@@ -137,7 +143,7 @@ public class SPIDIntegrationUtil {
 		// Get Private Key Entry From Certificate
 		KeyStore.PrivateKeyEntry pkEntry = null;
 		try {
-			pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection("<saml-signing-key-password>".toCharArray()));
+			pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection("changeit".toCharArray()));
 		}
 		catch (NoSuchAlgorithmException e) {
 			log.error("Failed to Get Private Entry From the keystore", e);
@@ -204,6 +210,40 @@ public class SPIDIntegrationUtil {
 			log.error("Failed to close file stream:: ", e);
 		}
 		return ks;
+	}
+
+	/**
+	 * @return
+	 */
+	public Signature getSignature() {
+
+		XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+
+		Signature signature = (Signature) builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
+		signature.setSigningCredential(getCredential());
+		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		KeyInfo keyInfo = (KeyInfo) builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+
+		KeyStore ks = getKeyStore();
+		try {
+			X509Certificate certificate = (X509Certificate) ks.getCertificate(certificateAliasName);
+			KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+			KeyInfoHelper.addCertificate(keyInfo, certificate);
+		}
+		catch (CertificateEncodingException e) {
+			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		}
+		catch (KeyStoreException e) {
+			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		}
+		catch (IllegalArgumentException e) {
+			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+		}
+
+		signature.setKeyInfo(keyInfo);
+
+		return signature;
 	}
 
 }
