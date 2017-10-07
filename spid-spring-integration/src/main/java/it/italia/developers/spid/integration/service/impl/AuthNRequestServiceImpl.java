@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
+import it.italia.developers.spid.integration.model.ResponseDecoded;
 import it.italia.developers.spid.integration.service.AuthNRequestService;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
 
@@ -55,6 +56,7 @@ public class AuthNRequestServiceImpl implements AuthNRequestService {
 	 * it.italia.developers.spid.integration.service.AuthNRequestService#buildAuthenticationRequest(java
 	 * .lang.String, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String destination) {
 		DateTime issueInstant = new DateTime();
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
@@ -126,6 +128,7 @@ public class AuthNRequestServiceImpl implements AuthNRequestService {
 	 * it.italia.developers.spid.integration.service.AuthNRequestService#buildAuthenticationRequest(java
 	 * .lang.String)
 	 */
+	@Override
 	public AuthRequest buildAuthenticationRequest(String entityId) throws IntegrationServiceException {
 
 		AuthRequest authRequest = new AuthRequest();
@@ -143,10 +146,24 @@ public class AuthNRequestServiceImpl implements AuthNRequestService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see it.italia.developers.spid.integration.service.AuthNRequestService#getAllIdpEntry()
 	 */
+	@Override
 	public Set<IdpEntry> getAllIdpEntry() throws IntegrationServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * it.italia.developers.spid.integration.service.AuthNRequestService#getAuthNResponse(java.lang.
+	 * String)
+	 */
+	@Override
+	public ResponseDecoded getAuthNResponse(String authResponse) throws IntegrationServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
