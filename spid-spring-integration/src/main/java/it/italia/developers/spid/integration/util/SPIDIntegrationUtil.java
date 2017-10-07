@@ -82,7 +82,7 @@ public class SPIDIntegrationUtil {
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */
-	public String encodeAuthnRequest(AuthnRequest authnRequest) throws MarshallingException, IOException, ConfigurationException {
+	public String encodeAndPrintAuthnRequest(AuthnRequest authnRequest) throws MarshallingException, IOException, ConfigurationException {
 
 		String requestMessage = printAuthnRequest(authnRequest);
 		Deflater deflater = new Deflater(Deflater.DEFLATED, true);

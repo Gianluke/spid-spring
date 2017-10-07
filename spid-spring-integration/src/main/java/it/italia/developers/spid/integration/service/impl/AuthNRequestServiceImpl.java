@@ -67,6 +67,7 @@ public class AuthNRequestServiceImpl implements AuthNRequestService {
 		authRequest.setAttributeConsumingServiceIndex(1);
 		authRequest.setDestination(destination);
 
+		// sign request
 		authRequest.setSignature(spidIntegrationUtil.getSignature());
 
 		return authRequest;
