@@ -143,7 +143,7 @@ public class SPIDIntegrationUtil {
 		// Get Private Key Entry From Certificate
 		KeyStore.PrivateKeyEntry pkEntry = null;
 		try {
-			pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection("changeit".toCharArray()));
+			pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection(keystorePassword.toCharArray()));
 		}
 		catch (NoSuchAlgorithmException e) {
 			log.error("Failed to Get Private Entry From the keystore", e);
