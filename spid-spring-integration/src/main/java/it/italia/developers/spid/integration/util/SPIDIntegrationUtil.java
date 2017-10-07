@@ -18,6 +18,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.Configuration;
@@ -33,6 +34,7 @@ import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -45,6 +47,15 @@ import org.xml.sax.SAXException;
 public class SPIDIntegrationUtil {
 
 	private final Logger log = LoggerFactory.getLogger(SPIDIntegrationUtil.class.getName());
+
+	@Value("${spid.spring.integration.keystore.certificate.alias}")
+	private String certificateAliasName;
+
+	@Value("${spid.spring.integration.keystore.path}")
+	private String keystorePath;
+
+	@Value("${spid.spring.integration.keystore.password}")
+	private String keystorePassword;
 
 	public SPIDIntegrationUtil() {
 		try {
@@ -113,18 +124,13 @@ public class SPIDIntegrationUtil {
 	}
 
 	private Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
-		Element node =  DocumentBuilderFactory
-		    .newInstance()
-		    .newDocumentBuilder()
-		    .parse(new ByteArrayInputStream(xmlData.getBytes()))
-		    .getDocumentElement();
-		
+		Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlData.getBytes())).getDocumentElement();
+
 		return node;
 	}
 
 	public Credential getCredential() {
 
-		String certificateAliasName = "<saml-signing-key-alias>";
 		KeyStore ks = getKeyStore();
 
 		// Get Private Key Entry From Certificate
@@ -155,12 +161,9 @@ public class SPIDIntegrationUtil {
 
 	public KeyStore getKeyStore() {
 
-		String passwordString = "<saml-keystore-password>";
-		String fileName = "<path-to-saml-keystore-file>";
-
 		KeyStore ks = null;
 		FileInputStream fis = null;
-		char[] password = passwordString.toCharArray();
+		char[] password = keystorePassword.toCharArray();
 
 		// Get Default Instance of KeyStore
 		try {
@@ -172,10 +175,10 @@ public class SPIDIntegrationUtil {
 
 		// Read Ketstore as file Input Stream
 		try {
-			fis = new FileInputStream(fileName);
+			fis = new FileInputStream(keystorePath);
 		}
 		catch (FileNotFoundException e) {
-			log.error("Unable to found KeyStore with the given keystoere name ::" + fileName, e);
+			log.error("Unable to found KeyStore with the given keystoere name ::" + keystorePath, e);
 		}
 
 		// Load KeyStore
