@@ -34,7 +34,8 @@ public class SPIDIntegrationServiceTest {
 	public void generateAuthNRequest() {
 
 		try {
-			AuthnRequest authnRequest = spidIntegrationService.buildAuthenticationRequest("https://spid.lecce.it/spid-spring-rest/send-response", "https://spid.lecce.it", "idp.spid.gov.it");
+			AuthnRequest authnRequest = spidIntegrationService.buildAuthenticationRequest("https://spid.lecce.it/spid-spring-rest/send-response", "https://spid.lecce.it",
+					"https://idp.spid.gov.it:9443/samlsso");
 			// encode request
 			String flatAuthnRequest = spidIntegrationUtil.printAuthnRequest(authnRequest);
 			log.info("FLATAUTHNREQUEST: " + flatAuthnRequest);
