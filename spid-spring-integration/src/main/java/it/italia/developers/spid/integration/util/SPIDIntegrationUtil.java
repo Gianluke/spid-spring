@@ -182,7 +182,6 @@ public class SPIDIntegrationUtil {
 	public KeyStore getKeyStore() {
 
 		KeyStore ks = null;
-		FileInputStream fis = null;
 		char[] password = keystorePassword.toCharArray();
 
 		// Get Default Instance of KeyStore
@@ -193,17 +192,9 @@ public class SPIDIntegrationUtil {
 			log.error("Error while Intializing Keystore", e);
 		}
 
-		// Read Ketstore as file Input Stream
-		try {
-			fis = new FileInputStream(keystorePath);
-		}
-		catch (FileNotFoundException e) {
-			log.error("Unable to found KeyStore with the given keystoere name ::" + keystorePath, e);
-		}
-
-		// Load KeyStore
-		try {
-			ks.load(fis, password);
+		// Load KeyStore from input stream
+		try (InputStream keystoreInputStream = getClass().getResourceAsStream(keystorePath)) {
+			ks.load(keystoreInputStream, password);
 		}
 		catch (NoSuchAlgorithmException e) {
 			log.error("Failed to Load the KeyStore:: ", e);
@@ -215,13 +206,6 @@ public class SPIDIntegrationUtil {
 			log.error("Failed to Load the KeyStore:: ", e);
 		}
 
-		// Close InputFileStream
-		try {
-			fis.close();
-		}
-		catch (IOException e) {
-			log.error("Failed to close file stream:: ", e);
-		}
 		return ks;
 	}
 
