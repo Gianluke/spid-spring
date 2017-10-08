@@ -26,7 +26,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Configuration
 @ComponentScan(basePackages = { "it.italia.developers.spid.integration", "it.italia.developers.spid.spidspringrest" })
-@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource(value = "file:${spid-spring-integration.properties.path}", ignoreResourceNotFound = true) })
+@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:integration.properties"),
+		@PropertySource(value = "file:${spid-spring-integration.properties.path}", ignoreResourceNotFound = true) })
 @EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
 public class SpidSpringRestApplication {
 

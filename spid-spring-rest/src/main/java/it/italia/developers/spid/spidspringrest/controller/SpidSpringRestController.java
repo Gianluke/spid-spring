@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,9 @@ import it.italia.developers.spid.spidspringrest.model.SpidProviders;
 @RestController()
 public class SpidSpringRestController {
 
+	@Value("${spid.spring.rest.assertionConsumerServiceIndex}")
+	private Integer assertionConsumerServiceIndex;
+
 	@Autowired
 	private SPIDIntegrationService spidIntegrationService;
 
@@ -41,7 +45,7 @@ public class SpidSpringRestController {
 	@RequestMapping(value = "auth-spid", method = RequestMethod.GET)
 	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId)
 			throws IntegrationServiceException {
-		AuthRequest retVal = spidIntegrationService.buildAuthenticationRequest(entityId, 0);
+		AuthRequest retVal = spidIntegrationService.buildAuthenticationRequest(entityId, assertionConsumerServiceIndex);
 
 		return retVal;
 	}

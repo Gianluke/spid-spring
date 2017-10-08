@@ -17,7 +17,7 @@ import org.springframework.context.annotation.PropertySources;
  */
 @Configuration
 @ComponentScan(basePackages = { "it.italia.developers.spid.integration" })
-@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource(value = "file:${spid-spring-integration.properties.path}", ignoreResourceNotFound = true) })
+@PropertySources({ @PropertySource("classpath:integration.properties"), @PropertySource(value = "file:${spid-spring-integration.properties.path}", ignoreResourceNotFound = true) })
 public class Application {
 
 }
