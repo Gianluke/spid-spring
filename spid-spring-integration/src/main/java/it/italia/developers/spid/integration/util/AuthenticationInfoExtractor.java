@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.joda.time.DateTime;
@@ -41,9 +37,6 @@ import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.X509Certificate;
 import org.opensaml.xml.signature.X509Data;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
@@ -55,7 +48,6 @@ public class AuthenticationInfoExtractor {
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
 	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
 	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
-	private static final String XPATH_SSO_POST_LOCATION = "/*[local-name()='EntityDescriptor']/*[local-name()='IDPSSODescriptor']/*[local-name()='SingleSignOnService'][@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']";
 	private static final String SPID_SPRING_INTEGRATION_IDP_PREFIX = "spid.spring.integration.idp.";
 	private static final String SPID_SPRING_INTEGRATION_IDP_KEYS = "spid.spring.integration.idp.keys";
 
@@ -190,37 +182,6 @@ public class AuthenticationInfoExtractor {
 		}
 
 		throw new IntegrationServiceException("Metadata file not found for the specified entityId.");
-	}
-
-	private String extractDestinationUrl(Element domElement) throws XPathExpressionException {
-		XPath xpath = xPathfactory.newXPath();
-		XPathExpression expr = xpath.compile(XPATH_SSO_POST_LOCATION);
-		Node foundNode = (Node) expr.evaluate(domElement, XPathConstants.NODE);
-		NamedNodeMap nodeMap = foundNode.getAttributes();
-		String destinationUrl = nodeMap.getNamedItem("Location").getNodeValue();
-
-		return destinationUrl;
-
-	}
-
-	private String extractId(Element domElement) throws XPathExpressionException {
-		NamedNodeMap nodeMap = domElement.getAttributes();
-		Node foundNode = nodeMap.getNamedItem("ID");
-		if (foundNode == null) {
-			return null;
-		}
-		String id = foundNode.getNodeValue();
-
-		return id;
-	}
-
-	private String extractSignatureCertificate(Element domElement) throws XPathExpressionException {
-		XPath xpath = xPathfactory.newXPath();
-		XPathExpression expr = xpath.compile(XPATH_SSO_POST_LOCATION);
-		Node foundNode = (Node) expr.evaluate(domElement, XPathConstants.NODE);
-		String signatureCertificate = foundNode.getTextContent();
-
-		return signatureCertificate;
 	}
 
 	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, Integer assertionConsumerServiceIndex, String issuerId, String id, String destination) {
