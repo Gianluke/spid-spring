@@ -34,7 +34,8 @@ public class AuthenticationInfoExtractor {
     private static final String SAML2_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
 	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
-	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";    
+    private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
+    private static final String XPATH_SSO_POST_LOCATION = "/*[local-name()='EntityDescriptor']/*[local-name()='IDPSSODescriptor']/*[local-name()='SingleSignOnService'][@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']";  
 
     XPathFactory xPathfactory = XPathFactory.newInstance();
 
@@ -42,16 +43,16 @@ public class AuthenticationInfoExtractor {
 
     SPIDIntegrationUtil spidIntegrationUtil;
 
-    public AuthenticationInfoExtractor(String entityId, String xmlServiceMetadata, SPIDIntegrationUtil spidIntegrationUtil) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, IntegrationServiceException {
+    public AuthenticationInfoExtractor(String entityId, String xmlServiceMetadata, SPIDIntegrationUtil spidIntegrationUtil, String assertionConsumerServiceUrl) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, IntegrationServiceException {
         super();
 
         this.spidIntegrationUtil = spidIntegrationUtil;
         Element domElement = spidIntegrationUtil.xmlStringToElement(xmlServiceMetadata);
-        String assertionConsumerServiceUrl = extractAssertionConsumerServiceUrl(domElement);
+        String destination = extractDestinationUrl(domElement);
         String id = extractId(domElement);
 
         // Caricamento IDP da entityID
-		AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, entityId, id);
+		AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, entityId, id, destination);
 		String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(buildAuthenticationRequest);
         
 		// TODO caricare da metadati SP
@@ -59,9 +60,9 @@ public class AuthenticationInfoExtractor {
 		authRequest.setXmlAuthRequest(encodedAuthnRequest);
     }
 
-    private String extractAssertionConsumerServiceUrl(Element domElement) throws XPathExpressionException {
+    private String extractDestinationUrl(Element domElement) throws XPathExpressionException {
         XPath xpath = xPathfactory.newXPath();
-        XPathExpression expr = xpath.compile("/*[local-name()='EntityDescriptor']/*[local-name()='IDPSSODescriptor']/*[local-name()='SingleSignOnService'][@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']");
+        XPathExpression expr = xpath.compile(XPATH_SSO_POST_LOCATION);
         Node foundNode = (Node) expr.evaluate(domElement, XPathConstants.NODE);
         NamedNodeMap nodeMap = foundNode.getAttributes();
         String assertionConsumerServiceUrl = nodeMap.getNamedItem("Location").getNodeValue();
@@ -77,7 +78,7 @@ public class AuthenticationInfoExtractor {
         return id;
     }
 
-	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String id) {
+	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String id, String destination) {
 		DateTime issueInstant = new DateTime();
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
 
@@ -93,7 +94,7 @@ public class AuthenticationInfoExtractor {
 		authRequest.setVersion(SAMLVersion.VERSION_20);
 
 		authRequest.setAttributeConsumingServiceIndex(1);
-		authRequest.setDestination(assertionConsumerServiceUrl);
+		authRequest.setDestination(destination);
 
 		// firma la request
 		authRequest.setSignature(spidIntegrationUtil.getSignature());
