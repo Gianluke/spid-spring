@@ -2,6 +2,9 @@ package it.italia.developers.spid.integration.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
@@ -37,6 +40,6 @@ public interface SPIDIntegrationService {
 	 * @return
 	 * @throws IntegrationServiceException
 	 */
-	ResponseDecoded processAuthenticationResponse(String authResponse) throws IntegrationServiceException;
+	ResponseDecoded processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) throws IntegrationServiceException;
 
 }
