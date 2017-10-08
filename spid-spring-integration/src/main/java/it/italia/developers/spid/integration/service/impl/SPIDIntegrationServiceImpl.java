@@ -59,7 +59,8 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 			String xmlServiceMetadata = retrieveXMLServiceMetadata(entityId);
 			AuthenticationInfoExtractor authenticationInfoExtractor;
 			String assertionConsumerServiceUrl = "https://spid.lecce.it/spid-spring-rest/send-response";
-			authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, xmlServiceMetadata, spidIntegrationUtil, assertionConsumerServiceUrl);
+			Integer assertionConsumerServiceIndex = 1;
+			authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, xmlServiceMetadata, spidIntegrationUtil, assertionConsumerServiceUrl, assertionConsumerServiceIndex);
 			AuthRequest authRequest = authenticationInfoExtractor.getAuthenticationRequest();
 			return authRequest;
 		} catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException e) {

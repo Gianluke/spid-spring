@@ -22,8 +22,6 @@ import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
 import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -43,16 +41,18 @@ public class AuthenticationInfoExtractor {
 
     SPIDIntegrationUtil spidIntegrationUtil;
 
-    public AuthenticationInfoExtractor(String entityId, String xmlServiceMetadata, SPIDIntegrationUtil spidIntegrationUtil, String assertionConsumerServiceUrl) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, IntegrationServiceException {
+	public AuthenticationInfoExtractor(String entityId, String xmlServiceMetadata, SPIDIntegrationUtil spidIntegrationUtil, String assertionConsumerServiceUrl, Integer assertionConsumerServiceIndex) 
+		throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, IntegrationServiceException {
         super();
 
         this.spidIntegrationUtil = spidIntegrationUtil;
         Element domElement = spidIntegrationUtil.xmlStringToElement(xmlServiceMetadata);
         String destination = extractDestinationUrl(domElement);
-        String id = extractId(domElement);
+		String id = extractId(domElement);
+		String signatureCertificate = extractSignatureCertificate(domElement);
 
         // Caricamento IDP da entityID
-		AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, entityId, id, destination);
+		AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, assertionConsumerServiceIndex, entityId, id, destination);
 		String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(buildAuthenticationRequest);
         
 		// TODO caricare da metadati SP
@@ -60,33 +60,49 @@ public class AuthenticationInfoExtractor {
 		authRequest.setXmlAuthRequest(encodedAuthnRequest);
     }
 
-    private String extractDestinationUrl(Element domElement) throws XPathExpressionException {
-        XPath xpath = xPathfactory.newXPath();
+	
+	private String extractDestinationUrl(Element domElement) throws XPathExpressionException {
+		XPath xpath = xPathfactory.newXPath();
         XPathExpression expr = xpath.compile(XPATH_SSO_POST_LOCATION);
         Node foundNode = (Node) expr.evaluate(domElement, XPathConstants.NODE);
         NamedNodeMap nodeMap = foundNode.getAttributes();
-        String assertionConsumerServiceUrl = nodeMap.getNamedItem("Location").getNodeValue();
-
-        return assertionConsumerServiceUrl;
-
+        String destinationUrl = nodeMap.getNamedItem("Location").getNodeValue();
+		
+        return destinationUrl;
+		
     }
-
+	
     private String extractId(Element domElement) throws XPathExpressionException {
-        NamedNodeMap nodeMap = domElement.getAttributes();
-        String id = nodeMap.getNamedItem("ID").getNodeValue();
-
+		NamedNodeMap nodeMap = domElement.getAttributes();
+		Node foundNode = nodeMap.getNamedItem("ID");
+		if (foundNode == null) {
+			return null;
+		}
+		String id = foundNode.getNodeValue();
+		
         return id;
     }
+	
+	private String extractSignatureCertificate(Element domElement) throws XPathExpressionException {
+		XPath xpath = xPathfactory.newXPath();
+		XPathExpression expr = xpath.compile(XPATH_SSO_POST_LOCATION);
+		Node foundNode = (Node) expr.evaluate(domElement, XPathConstants.NODE);
+		String signatureCertificate = foundNode.getTextContent();
 
-	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String id, String destination) {
+		return signatureCertificate;		
+	}
+
+	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, Integer assertionConsumerServiceIndex, 
+		String issuerId, String id, String destination) {
 		DateTime issueInstant = new DateTime();
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
-
+		
 		AuthnRequest authRequest = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
 		authRequest.setIsPassive(Boolean.FALSE);
 		authRequest.setIssueInstant(issueInstant);
 		authRequest.setProtocolBinding(SAML2_POST_BINDING);
 		authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
+		authRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
 		authRequest.setIssuer(buildIssuer(issuerId));
 		authRequest.setNameIDPolicy(buildNameIDPolicy());
 		authRequest.setRequestedAuthnContext(buildRequestedAuthnContext());
