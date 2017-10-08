@@ -6,15 +6,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
 
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
@@ -45,59 +40,9 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 
 	@Override
 	public AuthRequest buildAuthenticationRequest(String entityId, int assertionConsumerServiceIndex) throws IntegrationServiceException {
-		try {
-			String xmlServiceMetadata = retrieveXMLServiceMetadata(entityId);
-			String assertionConsumerServiceUrl = "https://spid.lecce.it/spid-spring-rest/send-response";
-			AuthenticationInfoExtractor authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, xmlServiceMetadata, spidIntegrationUtil, assertionConsumerServiceUrl,
-					assertionConsumerServiceIndex);
-			AuthRequest authRequest = authenticationInfoExtractor.getAuthenticationRequest();
-			return authRequest;
-		}
-		catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException e) {
-			throw new IntegrationServiceException(e);
-		}
-	}
-
-	private String retrieveXMLServiceMetadata(String entityId) throws IntegrationServiceException {
-		Properties properties = new Properties();
-		try (InputStream propertiesInputStream = getClass().getResourceAsStream("/idplist.properties")) {
-			properties.load(propertiesInputStream);
-			String keysProperty = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_KEYS);
-			String[] keys = keysProperty.split(",");
-			for (String key : keys) {
-				String entityIdFromProperties = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".entityId");
-				String xmlServiceMetadata = null;
-				if (entityId.equals(entityIdFromProperties)) {
-					String xmlMetadataFileName = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".file");
-					xmlServiceMetadata = resourceNameToString(xmlMetadataFileName);
-				}
-
-				if (xmlServiceMetadata != null) {
-					return xmlServiceMetadata;
-				}
-			}
-		}
-		catch (FileNotFoundException e) {
-			throw new IntegrationServiceException(e);
-		}
-		catch (IOException e) {
-			throw new IntegrationServiceException(e);
-		}
-
-		throw new IntegrationServiceException("Metadata file not found for the specified entityId.");
-	}
-
-	private String resourceNameToString(String resourceName) throws IOException {
-		try (InputStream resourceInputStream = getClass().getResourceAsStream("/metadata/idp/" + resourceName)) {
-			if (resourceInputStream == null) {
-				return null;
-			}
-
-			try (Scanner scanner = new Scanner(resourceInputStream)) {
-				String resourceContent = scanner.useDelimiter("\\Z").next();
-				return resourceContent;
-			}
-		}
+		AuthenticationInfoExtractor authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, spidIntegrationUtil, assertionConsumerServiceIndex);
+		AuthRequest authRequest = authenticationInfoExtractor.getAuthenticationRequest();
+		return authRequest;
 	}
 
 	@Override

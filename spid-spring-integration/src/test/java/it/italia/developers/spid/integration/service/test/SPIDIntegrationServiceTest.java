@@ -39,7 +39,7 @@ public class SPIDIntegrationServiceTest {
 		try {
 			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
 			Assert.assertNotNull(authRequest.getXmlAuthRequest());
-			System.out.println(authRequest.getXmlAuthRequest());
+			System.out.println();
 		}
 		catch (IntegrationServiceException e) {
 			e.printStackTrace();

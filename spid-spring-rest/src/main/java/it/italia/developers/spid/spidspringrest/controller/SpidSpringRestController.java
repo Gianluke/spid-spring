@@ -62,7 +62,7 @@ public class SpidSpringRestController {
 		return retVal;
 	}
 
-	@RequestMapping(value = "send-response-test", method = RequestMethod.POST, consumes = { MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(value = "send-response-test", method = RequestMethod.POST)
 	public ResponseDecoded decodeResponseTest(HttpServletRequest request) {
 
 		ResponseDecoded retVal = new ResponseDecoded();
