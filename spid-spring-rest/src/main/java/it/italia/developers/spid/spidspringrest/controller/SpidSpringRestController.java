@@ -28,7 +28,7 @@ public class SpidSpringRestController {
 	@Autowired
 	private SPIDIntegrationService spidIntegrationService;
 
-	@ApiOperation(value = "Elenco Providers SPID", notes = "Servizio rest per ottenere l'elenco dei provider abilitati", response = SpidProviders.class)
+	@ApiOperation(value = "Elenco Providers SPID", notes = "Servizio REST per ottenere l'elenco dei provider abilitati", response = SpidProviders.class)
 	@RequestMapping(value = "list-providers", method = RequestMethod.GET)
 	public SpidProviders listIdProviders() throws IntegrationServiceException {
 		SpidProviders retVal = new SpidProviders();
@@ -37,12 +37,10 @@ public class SpidSpringRestController {
 		return retVal;
 	}
 
-	@ApiOperation(value = "Iserimento della richiesta di autorizzazione", notes = "Servizio rest per ottenere la richiesta di autorizzazione", response = AuthRequest.class)
+	@ApiOperation(value = "Inserimento della richiesta di autorizzazione", notes = "Servizio REST per ottenere la richiesta di autorizzazione", response = AuthRequest.class)
 	@RequestMapping(value = "auth-spid", method = RequestMethod.GET)
-	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId) {
-		AuthRequest retVal = new AuthRequest();
-		retVal.setDestinationUrl("https://posteid.poste.it/jod-securelogin-schema/login.jsp");
-		retVal.setXmlAuthRequest("<TEST>" + entityId + "</TEST>");
+	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId) throws IntegrationServiceException {
+		AuthRequest retVal = spidIntegrationService.buildAuthenticationRequest(entityId);
 
 		return retVal;
 	}
