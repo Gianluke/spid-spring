@@ -39,8 +39,9 @@ public class SpidSpringRestController {
 
 	@ApiOperation(value = "Inserimento della richiesta di autorizzazione", notes = "Servizio REST per ottenere la richiesta di autorizzazione", response = AuthRequest.class)
 	@RequestMapping(value = "auth-spid", method = RequestMethod.GET)
-	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId) throws IntegrationServiceException {
-		AuthRequest retVal = spidIntegrationService.buildAuthenticationRequest(entityId);
+	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId)
+			throws IntegrationServiceException {
+		AuthRequest retVal = spidIntegrationService.buildAuthenticationRequest(entityId, 0);
 
 		return retVal;
 	}

@@ -2,8 +2,6 @@ package it.italia.developers.spid.integration.service;
 
 import java.util.List;
 
-import org.opensaml.saml2.core.AuthnRequest;
-
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
@@ -19,9 +17,10 @@ public interface SPIDIntegrationService {
 	 * Costruisce l'oggetto Saml2 AuthNRequest a partire dall'entityID dell'i-esimo IDP.
 	 *
 	 * @param entityId
+	 * @param assertionConsumerServiceIndex
 	 * @return
 	 */
-	AuthRequest buildAuthenticationRequest(String entityId) throws IntegrationServiceException;
+	AuthRequest buildAuthenticationRequest(String entityId, int assertionConsumerServiceIndex) throws IntegrationServiceException;
 
 	/**
 	 * Carica la lista di tutti gli IDP presenti.

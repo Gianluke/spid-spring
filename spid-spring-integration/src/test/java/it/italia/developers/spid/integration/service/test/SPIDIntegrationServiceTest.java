@@ -1,9 +1,10 @@
 package it.italia.developers.spid.integration.service.test;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opensaml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,6 @@ import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
-
-import java.util.List;
 
 /**
  * @author Gianluca Pindinelli
@@ -38,9 +37,11 @@ public class SPIDIntegrationServiceTest {
 	@Test
 	public void buildAuthenticationRequestTest() {
 		try {
-			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("https://loginspid.aruba.it");
+			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
 			Assert.assertNotNull(authRequest.getXmlAuthRequest());
-		} catch (IntegrationServiceException e) {
+			System.out.println(authRequest.getXmlAuthRequest());
+		}
+		catch (IntegrationServiceException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
@@ -49,9 +50,10 @@ public class SPIDIntegrationServiceTest {
 	@Test
 	public void getAllIdpEntryTest() {
 		try {
-			List<IdpEntry> idpEntries =  spidIntegrationService.getAllIdpEntry();
+			List<IdpEntry> idpEntries = spidIntegrationService.getAllIdpEntry();
 			Assert.assertTrue(idpEntries.size() > 0);
-		} catch (IntegrationServiceException e) {
+		}
+		catch (IntegrationServiceException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
