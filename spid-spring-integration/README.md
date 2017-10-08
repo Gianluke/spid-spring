@@ -5,7 +5,7 @@ Si tratta di una libreria sviluppata utilizzando le funzionalità di OpenSAML v3
 - `List<IdpEntry> getAllIdpEntry()`
 	 - Restituisce una lista degli Identity Provider SPID ufficiali. Di ogni provider il servizio fornisce un identificativo applicativo, l'entityID e il nome del provider, un URL da cui è possibile scaricare il logo del provider.
 - `AuthRequest buildAuthenticationRequest(String entityId, int assertionConsumerServiceIndex)`
-	 - Dati l'entityID del provider e l'indice di uno specifico consumer service fornito dal Service Provider, restituisce un oggetto contenente l’URL a cui inviare il messaggio di risposta alla richiesta di autenticazione e il contenuto del campo AuthnRequest da inviare all'Identity Provider.
+	 - Dati l'entityID del provider e l'indice di uno specifico consumer service fornito dal Service Provider, restituisce un oggetto contenente l’URL a cui inviare il messaggio di risposta alla richiesta di autenticazione ed una mappa di attributi (AuthnRequest, SignatureMethod) da inviare all'Identity Provider.
 - `ResponseDecoded processAuthenticationResponse(ResponseEncoded response)`
    - Richiede in ingresso la risposta codificata restituita dall'Identity Provider e restituisce una versione intellegibile delle informazioni in essa riportate.
 
