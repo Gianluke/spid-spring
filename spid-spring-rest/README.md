@@ -8,8 +8,7 @@ L'applicazione è basata su Spring Boot, pertanto è possibile attivare gli endp
 
 Mandando in esecuzione il jar, gli endpoint vengono esposti su http://localhost:8080/
 
+Inoltre è possibile utilizzare la classe @RestController (it.italia.developers.spid.spidspringrest.controller.SpidSpringRestController) all'interno dei progetti web che necessitano di esporre i servizi REST per l'autenticazione Spid.
+
 # Specifiche e test dei servizi REST
 I servizi REST sono documentati per mezzo di Swagger, accedendo all'indirizzo http://localhost:8080/swagger-ui.html . Lo strumento swagger consente inoltre di inserire i paramteri di input e testare gli endpoint per mezzo del pulsante "Try it out!".
-
-
-
