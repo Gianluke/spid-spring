@@ -16,16 +16,6 @@ import it.italia.developers.spid.integration.model.ResponseDecoded;
 public interface SPIDIntegrationService {
 
 	/**
-	 * Costruisce l'oggetto Saml2 AuthNRequest.
-	 *
-	 * @param assertionConsumerServiceUrl
-	 * @param issuerId
-	 * @param destination
-	 * @return
-	 */
-	AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String destination) throws IntegrationServiceException;
-
-	/**
 	 * Costruisce l'oggetto Saml2 AuthNRequest a partire dall'entityID dell'i-esimo IDP.
 	 *
 	 * @param entityId

@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import it.italia.developers.spid.integration.Application;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
+import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
@@ -35,25 +36,14 @@ public class SPIDIntegrationServiceTest {
 	private SPIDIntegrationUtil spidIntegrationUtil;
 
 	@Test
-	public void generateAuthNRequest() {
-
+	public void buildAuthenticationRequestTest() {
 		try {
-			AuthnRequest authnRequest = spidIntegrationService.buildAuthenticationRequest("https://spid.lecce.it/spid-spring-rest/send-response", "https://spid.lecce.it",
-					"https://idp.spid.gov.it:9443/samlsso");
-			// encode request
-			String flatAuthnRequest = spidIntegrationUtil.printAuthnRequest(authnRequest);
-			log.info("FLATAUTHNREQUEST: " + flatAuthnRequest);
-			System.out.println("FLATAUTHNREQUEST: " + flatAuthnRequest);
-
-			String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(authnRequest);
-			log.info("ENCODEDAUTHNREQUEST: " + encodedAuthnRequest);
-
-			System.out.println("ENCODEDAUTHNREQUEST: " + encodedAuthnRequest);
+			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("https://loginspid.aruba.it");
+			Assert.assertNotNull(authRequest.getXmlAuthRequest());
+		} catch (IntegrationServiceException e) {
+			e.printStackTrace();
+			Assert.fail();
 		}
-		catch (IntegrationServiceException e) {
-			log.error("generateAuthNRequest :: " + e.getMessage(), e);
-		}
-
 	}
 
 	@Test

@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
+import java.util.Scanner;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.AuthnContextClassRef;
@@ -23,12 +25,13 @@ import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import org.xml.sax.SAXException;
 import it.italia.developers.spid.integration.exception.IntegrationServiceException;
 import it.italia.developers.spid.integration.model.AuthRequest;
 import it.italia.developers.spid.integration.model.IdpEntry;
 import it.italia.developers.spid.integration.model.ResponseDecoded;
 import it.italia.developers.spid.integration.service.SPIDIntegrationService;
+import it.italia.developers.spid.integration.util.AuthenticationInfoExtractor;
 import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
 
 /**
@@ -37,12 +40,6 @@ import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
  */
 @Service
 public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
-	
-	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
-	private static final String SAML2_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
-	private static final String SAML2_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
-	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
-	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
 	private static final String SPID_SPRING_INTEGRATION_IDP_PREFIX = "spid.spring.integration.idp.";
 	private static final String SPID_SPRING_INTEGRATION_IDP_KEYS = "spid.spring.integration.idp.keys";
 
@@ -54,89 +51,60 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 	private String issuerId;
 
 	@Autowired
-	private SPIDIntegrationUtil spidIntegrationUtil;
-
-	@Override
-	public AuthnRequest buildAuthenticationRequest(String assertionConsumerServiceUrl, String issuerId, String destination) {
-		DateTime issueInstant = new DateTime();
-		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
-
-		AuthnRequest authRequest = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
-		authRequest.setIsPassive(Boolean.FALSE);
-		authRequest.setIssueInstant(issueInstant);
-		authRequest.setProtocolBinding(SAML2_POST_BINDING);
-		authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
-		authRequest.setIssuer(buildIssuer(issuerId));
-		authRequest.setNameIDPolicy(buildNameIDPolicy());
-		authRequest.setRequestedAuthnContext(buildRequestedAuthnContext());
-		// TODO caricamento da XML
-		authRequest.setID("_abdd8d0-370e-4f76-b281-8eebb276faef");
-		authRequest.setVersion(SAMLVersion.VERSION_20);
-
-		authRequest.setAttributeConsumingServiceIndex(1);
-		authRequest.setDestination(destination);
-
-		// firma la request
-		authRequest.setSignature(spidIntegrationUtil.getSignature());
-
-		return authRequest;
-	}
-
-	private RequestedAuthnContext buildRequestedAuthnContext() {
-
-		// Create AuthnContextClassRef
-		AuthnContextClassRefBuilder authnContextClassRefBuilder = new AuthnContextClassRefBuilder();
-		AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject(SAML2_ASSERTION, "AuthnContextClassRef", "saml");
-		authnContextClassRef.setAuthnContextClassRef(SAML2_PASSWORD_PROTECTED_TRANSPORT);
-
-		// Create RequestedAuthnContext
-		RequestedAuthnContextBuilder requestedAuthnContextBuilder = new RequestedAuthnContextBuilder();
-		RequestedAuthnContext requestedAuthnContext = requestedAuthnContextBuilder.buildObject();
-		requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.EXACT);
-		requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-		return requestedAuthnContext;
-	}
-
-	/**
-	 * Costruisce lo issuer object
-	 *
-	 * @return Issuer object
-	 */
-	private Issuer buildIssuer(String issuerId) {
-		IssuerBuilder issuerBuilder = new IssuerBuilder();
-		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setNameQualifier(issuerId);
-		issuer.setFormat(SAML2_NAME_ID_POLICY);
-		issuer.setValue(issuerId);
-		return issuer;
-	}
-
-	/**
-	 * Costruisce il NameIDPolicy object
-	 *
-	 * @return NameIDPolicy object
-	 */
-	private NameIDPolicy buildNameIDPolicy() {
-		NameIDPolicy nameIDPolicy = new NameIDPolicyBuilder().buildObject();
-		nameIDPolicy.setFormat(SAML2_NAME_ID_POLICY);
-		return nameIDPolicy;
-	}
+	SPIDIntegrationUtil spidIntegrationUtil;
 
 	@Override
 	public AuthRequest buildAuthenticationRequest(String entityId) throws IntegrationServiceException {
+		try {
+			String xmlServiceMetadata = retrieveXMLServiceMetadata(entityId);
+			AuthenticationInfoExtractor authenticationInfoExtractor;
+			authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, xmlServiceMetadata, spidIntegrationUtil);
+			AuthRequest authRequest = authenticationInfoExtractor.getAuthenticationRequest();
+			return authRequest;
+		} catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException e) {
+			throw new IntegrationServiceException(e);
+		}
+	}
 
-		AuthRequest authRequest = new AuthRequest();
+	private String retrieveXMLServiceMetadata(String entityId) throws IntegrationServiceException {
+		Properties properties = new Properties();
+		try (InputStream propertiesInputStream = getClass().getResourceAsStream("/idplist.properties")) {
+			properties.load(propertiesInputStream);
+			String keysProperty = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_KEYS);
+			String[] keys = keysProperty.split(",");
+			for (String key: keys) {
+				String entityIdFromProperties = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".entityId");
+				String xmlServiceMetadata = null;
+				if (entityId.equals(entityIdFromProperties)) {
+					String xmlMetadataFileName = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".file");
+					xmlServiceMetadata = resourceNameToString(xmlMetadataFileName);
+				}
 
-		// Caricamento IDP da entityID
-		AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, issuerId, entityId);
-		String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(buildAuthenticationRequest);
+				if (xmlServiceMetadata != null) {
+					return xmlServiceMetadata;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			throw new IntegrationServiceException(e);
+		}
+		catch (IOException e) {
+			throw new IntegrationServiceException(e);
+		}
+		
+		throw new IntegrationServiceException("Metadata file not found for the specified entityId.");
+	}
 
-		// TODO caricare da metadati SP
-		authRequest.setDestinationUrl("https://spid.lecce.it/spid-spring-rest/send-response");
-		authRequest.setXmlAuthRequest(encodedAuthnRequest);
+	private String resourceNameToString(String resourceName) throws IOException {
+		try (InputStream resourceInputStream = getClass().getResourceAsStream("/metadata/idp/" + resourceName)) {
+			if (resourceInputStream == null) {
+				return null;
+			}
 
-		return authRequest;
+			try (Scanner scanner = new Scanner(resourceInputStream)) {
+				String resourceContent = scanner.useDelimiter("\\Z").next();
+				return resourceContent;
+			}
+		}
 	}
 
 	@Override
